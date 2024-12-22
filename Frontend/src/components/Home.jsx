@@ -76,7 +76,7 @@ function Home() {
   <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 relative">
     <div className="border-2 border-dashed px-6 py-8 md:px-12 md:py-10 border-indigo-400 rounded-2xl shadow-2xl bg-white relative">
       <h1 className="text-4xl font-extrabold text-center mb-6 text-indigo-600">
-        Convert Word to PDF Online
+        Convert Word to PDF File
       </h1>
       <p className="text-base md:text-lg text-center mb-6 text-gray-600">
         "Quickly convert your Word documents to professional PDFs effortlessly, all online and hassle-free."
