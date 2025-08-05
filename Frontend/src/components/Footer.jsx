@@ -155,11 +155,12 @@ function Footer() {
                 <FaHeart className="text-red-500 text-sm" />
                 <span>by</span>
                 <span className="text-yellow-300 font-semibold">
-                  Tarun Technologies
+                  Tarun Varshney
                 </span>
               </div>
               <div className="text-gray-400 text-sm">
-                © 2024 PUREPDF. All rights reserved.
+                © 2024 PUREPDF • Developed by Tarun Varshney • All rights
+                reserved.
               </div>
             </div>
           </div>
