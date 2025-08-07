@@ -1,8 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
-const mammoth = require("mammoth");
-const puppeteer = require("puppeteer");
+const docxToPDF = require("docx-pdf");
 const path = require("path");
 const fs = require("fs");
 
@@ -62,7 +61,7 @@ const upload = multer({
 });
 
 // API endpoint for file conversion
-app.post("/convertFile", upload.single("file"), async (req, res, next) => {
+app.post("/convertFile", upload.single("file"), (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -76,94 +75,13 @@ app.post("/convertFile", upload.single("file"), async (req, res, next) => {
         const outputFilename = `${path.basename(req.file.filename, path.extname(req.file.filename))}.pdf`;
         const outputPath = path.join(__dirname, "files", outputFilename);
 
-        try {
-            // Convert DOCX to HTML using mammoth
-            console.log("Converting DOCX to HTML...");
-            const result = await mammoth.convertToHtml({ path: req.file.path });
-            const htmlContent = result.value;
-
-            // Create a styled HTML document
-            const styledHtml = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <style>
-                        body {
-                            font-family: 'Times New Roman', serif;
-                            font-size: 12pt;
-                            line-height: 1.6;
-                            margin: 40px;
-                            color: #333;
-                        }
-                        h1, h2, h3, h4, h5, h6 {
-                            color: #2c3e50;
-                            margin-bottom: 15px;
-                        }
-                        p {
-                            margin-bottom: 12px;
-                            text-align: justify;
-                        }
-                        table {
-                            border-collapse: collapse;
-                            width: 100%;
-                            margin: 20px 0;
-                        }
-                        th, td {
-                            border: 1px solid #ddd;
-                            padding: 8px;
-                            text-align: left;
-                        }
-                        th {
-                            background-color: #f2f2f2;
-                        }
-                        ul, ol {
-                            margin: 12px 0;
-                            padding-left: 30px;
-                        }
-                        li {
-                            margin-bottom: 5px;
-                        }
-                        .watermark {
-                            position: fixed;
-                            bottom: 20px;
-                            right: 20px;
-                            font-size: 10pt;
-                            color: #888;
-                            opacity: 0.7;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${htmlContent}
-                    <div class="watermark">Converted by PUREPDF - By Tarun Varshney</div>
-                </body>
-                </html>
-            `;
-
-            // Convert HTML to PDF using puppeteer
-            console.log("Converting HTML to PDF...");
-            const browser = await puppeteer.launch({
-                headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
-            
-            const page = await browser.newPage();
-            await page.setContent(styledHtml, { waitUntil: 'networkidle0' });
-            
-            await page.pdf({
-                path: outputPath,
-                format: 'A4',
-                printBackground: true,
-                margin: {
-                    top: '20mm',
-                    bottom: '20mm',
-                    left: '20mm',
-                    right: '20mm'
-                }
-            });
-
-            await browser.close();
+        docxToPDF(req.file.path, outputPath, (err, result) => {
+            if (err) {
+                console.error("Conversion error:", err); // problem
+                return res.status(500).json({
+                    message: "Error converting docx to pdf: " + err.message,
+                });
+            }
 
             console.log(`File converted successfully: ${outputFilename}`);
 
@@ -184,14 +102,7 @@ app.post("/convertFile", upload.single("file"), async (req, res, next) => {
                     }, 1000); // Wait 1 second before cleanup
                 }
             });
-
-        } catch (conversionError) {
-            console.error("Conversion error:", conversionError);
-            return res.status(500).json({
-                message: "Error converting docx to pdf: " + conversionError.message,
-            });
-        }
-
+        });
     } catch (error) {
         console.error("Server error:", error);
         res.status(500).json({
